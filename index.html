@@ -11,7 +11,7 @@
     <!-- Re-adding Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.v2.css">
 </head>
 
 <body>
@@ -40,8 +40,11 @@
 
     <!-- APP VIEW (Main Dashboard) -->
     <div id="app-view" class="app-layout hidden">
+        <!-- Sidebar Overlay (Mobile) -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="brand">
                 <div class="logo-icon">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -91,6 +94,7 @@
         <main class="main-content">
             <!-- Header (Persistent) -->
             <header class="top-bar">
+                <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
                 <div class="greeting">
                     <h1 id="pageTitle">Overview</h1>
                     <p class="subtitle" id="pageSubtitle">Build habits. One day at a time.</p>
@@ -246,6 +250,25 @@
             </div>
 
         </main>
+
+        <!-- Mobile Bottom Nav -->
+        <nav class="mobile-bottom-nav">
+            <a href="#" class="nav-item mobile-item active" data-view="dashboard">
+                <span class="nav-icon">📊</span>
+            </a>
+            <a href="#" class="nav-item mobile-item" data-view="goals">
+                <span class="nav-icon">🎯</span>
+            </a>
+            <!-- Floating Action Button for Add -->
+            <div class="mobile-fab" id="mobileAddBtn">+</div>
+
+            <a href="#" class="nav-item mobile-item" data-view="calendar">
+                <span class="nav-icon">📅</span>
+            </a>
+            <a href="#" class="nav-item mobile-item" data-view="analytics">
+                <span class="nav-icon">📈</span>
+            </a>
+        </nav>
     </div><!-- End App View -->
 
     </div><!-- End App View -->

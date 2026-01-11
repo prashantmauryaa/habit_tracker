@@ -1,6 +1,4 @@
-// HabitFlow V3 - Multi-user Functionality
 
-// --- State Management ---
 let appState = {
     habits: [],
     goals: [],
@@ -8,8 +6,10 @@ let appState = {
     history: {}
 };
 
-// --- DOM References ---
 const els = {
+    auth: document.getElementById('auth-view'),
+    app: document.getElementById('app-view'),
+    loginForm: document.getElementById('loginForm'),
     navItems: document.querySelectorAll('.nav-item'),
     views: {
         dashboard: document.getElementById('view-dashboard'),
@@ -17,9 +17,14 @@ const els = {
         calendar: document.getElementById('view-calendar'),
         analytics: document.getElementById('view-analytics')
     },
-    titles: {
-        main: document.getElementById('pageTitle'),
-        sub: document.getElementById('pageSubtitle')
+    lists: {
+        habits: document.getElementById('habitsList'),
+        goals: document.getElementById('goalsList')
+    },
+    stats: {
+        total: document.getElementById('totalHabits'), // Reuse ID for dashboard stats if needed
+        rate: document.getElementById('completionRate'),
+        streak: document.getElementById('currentStreak')
     },
     buttons: {
         addHabit: document.getElementById('addHabitBtn'),
@@ -29,63 +34,52 @@ const els = {
     modals: {
         habit: document.getElementById('modalOverlay'),
         goal: document.getElementById('goalModalOverlay'),
-        logout: document.getElementById('logoutModalOverlay') // New Ref
+        logout: document.getElementById('logoutModalOverlay')
     },
-    lists: {
-        habits: document.getElementById('habitsList'),
-        goals: document.getElementById('goalsList')
-    },
-    stats: {
-        total: document.getElementById('totalHabits'),
-        rate: document.getElementById('completionRate'),
-        streak: document.getElementById('bestStreak')
+    titles: {
+        main: document.querySelector('.greeting h1')
     }
 };
 
-// --- Init ---
 function init() {
+    // 1. Check Auth & Load Data
+    checkAuth();
+
+    // 2. Setup Listeners
+    setupAuthListeners();
     setupNavigation();
-    setupModals();
     setupHabits();
     setupGoals();
-    setupAuthListeners();
+    setupModals();
+    setupMobileMenu();
 
-    // Check theme
-    if (appState.settings.theme === 'light') {
-        document.documentElement.setAttribute('data-theme', 'light');
-        els.buttons.theme.textContent = '☀️';
+    // 3. Initial Renders
+    if (appState.settings.theme) {
+        document.documentElement.setAttribute('data-theme', appState.settings.theme);
+        els.buttons.theme.textContent = appState.settings.theme === 'light' ? '☀️' : '🌙';
     }
-
-    // Default flow
-    checkAuth();
-}
-
-// --- Auth & Data Logic (Multi-User) ---
-
-function getUserKey(user, key) {
-    return `habitflow_${user}_${key}`;
 }
 
 function checkAuth() {
     const user = localStorage.getItem('habitflow_current_user');
-    const appView = document.getElementById('app-view');
-    const authView = document.getElementById('auth-view');
-    const userNameDisplay = document.querySelector('.user-details .name');
-
     if (user) {
-        // User logged in
-        authView.classList.add('hidden');
-        appView.classList.remove('hidden');
-        if (userNameDisplay) userNameDisplay.textContent = user;
+        // Logged In
+        els.auth.classList.add('hidden');
+        els.app.classList.remove('hidden');
+        document.getElementById('displayUserName').textContent = user;
 
         loadData(user);
         checkDailyReset(user);
         renderDashboard();
     } else {
-        // No user
-        authView.classList.remove('hidden');
-        appView.classList.add('hidden');
+        // Logged Out
+        els.auth.classList.remove('hidden');
+        els.app.classList.add('hidden');
     }
+}
+
+function getUserKey(user, key) {
+    return `habitflow_${user}_${key}`;
 }
 
 function loadData(user) {
@@ -131,16 +125,15 @@ function setupAuthListeners() {
     });
 
     // Logout Modal Logic
-    const logoutBtn = document.getElementById('logoutBtn');
+    const logoutBtn = document.getElementById('logoutBtn'); // Sidebar btn (Desktop)
+    const mobileLogoutBtn = document.getElementById('mobileLogoutBtn'); // (Mobile)
     const confirmLogout = document.getElementById('confirmLogout');
     const cancelLogout = document.getElementById('cancelLogout');
 
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            // Show custom modal instead of alert
-            els.modals.logout.classList.add('active');
-        });
-    }
+    const triggerLogout = () => els.modals.logout.classList.add('active');
+
+    if (logoutBtn) logoutBtn.addEventListener('click', triggerLogout);
+    if (mobileLogoutBtn) mobileLogoutBtn.addEventListener('click', triggerLogout);
 
     if (cancelLogout) {
         cancelLogout.addEventListener('click', () => {
@@ -189,17 +182,28 @@ function checkDailyReset(user) {
 
 // --- Navigation Logic ---
 function setupNavigation() {
-    els.navItems.forEach(item => {
+    // Select BOTH desktop and mobile nav items
+    const allNavItems = document.querySelectorAll('.nav-item');
+
+    allNavItems.forEach(item => {
         item.addEventListener('click', (e) => {
             e.preventDefault();
             const targetView = item.dataset.view;
+            if (!targetView) return; // Ignore if no view data
 
-            els.navItems.forEach(n => n.classList.remove('active'));
-            item.classList.add('active');
+            // 1. Deactivate ALL items
+            allNavItems.forEach(n => n.classList.remove('active'));
 
+            // 2. Activate clicked item + its counterpart (desktop<->mobile)
+            allNavItems.forEach(n => {
+                if (n.dataset.view === targetView) n.classList.add('active');
+            });
+
+            // 3. Switch View
             Object.values(els.views).forEach(el => el.classList.remove('active'));
-            els.views[targetView].classList.add('active');
+            if (els.views[targetView]) els.views[targetView].classList.add('active');
 
+            // 4. Update Header Buttons/Titles based on View
             if (targetView === 'dashboard') {
                 els.buttons.addHabit.classList.remove('hidden');
                 els.buttons.addGoal.classList.add('hidden');
@@ -230,7 +234,9 @@ function setupHabits() {
     document.getElementById('habitForm').addEventListener('submit', (e) => {
         e.preventDefault();
         const mt = document.getElementById('habitNameInput').value;
-        const icon = document.querySelector('.icon-option.active').dataset.icon;
+        const activeIconEl = document.querySelector('.icon-option.active');
+        const icon = activeIconEl ? activeIconEl.dataset.icon : '📝'; // Default icon
+
         appState.habits.push({
             id: Date.now(), title: mt, icon: icon,
             streak: 0, best: 0, completedToday: false
@@ -569,6 +575,15 @@ function setupModals() {
     els.buttons.addHabit.addEventListener('click', () => els.modals.habit.classList.add('active'));
     els.buttons.addGoal.addEventListener('click', () => els.modals.goal.classList.add('active'));
 
+    // Mobile FAB (Add Button)
+    const mobileAddBtn = document.getElementById('mobileAddBtn');
+    if (mobileAddBtn) {
+        mobileAddBtn.addEventListener('click', () => {
+            // Default to adding a habit for FAB
+            els.modals.habit.classList.add('active');
+        });
+    }
+
     // Fix: Listen for BOTH modal close classes
     document.querySelectorAll('.closeModal').forEach(b => b.addEventListener('click', closeModals));
     document.querySelectorAll('.closeGoalModal').forEach(b => b.addEventListener('click', closeModals));
@@ -608,4 +623,40 @@ function triggerConfetti() {
     confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 }, colors: ['#6366f1', '#8b5cf6'] });
 }
 
+
+// --- Mobile Menu (Drawer) Logic ---
+function setupMobileMenu() {
+    const btn = document.getElementById('mobileMenuBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const navItems = document.querySelectorAll('.nav-item');
+
+    // Toggle Open
+    if (btn) {
+        btn.addEventListener('click', () => {
+            if (sidebar) sidebar.classList.add('active');
+            if (overlay) overlay.classList.add('active');
+        });
+    }
+
+    // Close on Overlay Click
+    if (overlay) {
+        overlay.addEventListener('click', () => {
+            if (sidebar) sidebar.classList.remove('active');
+            if (overlay) overlay.classList.remove('active');
+        });
+    }
+
+    // Auto-Close when a drawer item is clicked
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            // Only close if we are in mobile mode (sidebar is active/fixed)
+            if (sidebar && sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+                if (overlay) overlay.classList.remove('active');
+            }
+        });
+    });
+}
 document.addEventListener('DOMContentLoaded', init);
+
