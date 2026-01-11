@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HabitFlow | Build better habits</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Re-adding Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- AUTH VIEW (Login Page) -->
+    <div id="auth-view" class="auth-container">
+        <div class="auth-card">
+            <div class="auth-brand">
+                <div class="logo-icon large">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                    </svg>
+                </div>
+                <h1>HabitFlow</h1>
+            </div>
+            <p class="auth-subtitle">Welcome back! Please enter your details.</p>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Your Name</label>
+                    <input type="text" id="loginName" placeholder="e.g. Prashant Maurya" required autocomplete="name">
+                </div>
+                <button type="submit" class="btn-primary full-width">Get Started</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- APP VIEW (Main Dashboard) -->
+    <div id="app-view" class="app-layout hidden">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="logo-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                    </svg>
+                </div>
+                <span>HabitFlow</span>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-view="dashboard">
+                    <span class="icon">📊</span> Dashboard
+                </a>
+                <a href="#" class="nav-item" data-view="goals">
+                    <span class="icon">🎯</span> Goals
+                </a>
+                <a href="#" class="nav-item" data-view="calendar">
+                    <span class="icon">📅</span> Calendar
+                </a>
+                <a href="#" class="nav-item" data-view="analytics">
+                    <span class="icon">⚡</span> Analytics
+                </a>
+            </nav>
+
+            <!-- User Profile & Logout -->
+            <div class="sidebar-footer">
+                <div class="user-card">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User">
+                    <div class="user-details">
+                        <span class="name">Productive User</span>
+                        <span class="plan">Pro Plan</span>
+                    </div>
+                </div>
+
+                <button id="logoutBtn" class="btn-logout-large">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header (Persistent) -->
+            <header class="top-bar">
+                <div class="greeting">
+                    <h1 id="pageTitle">Overview</h1>
+                    <p class="subtitle" id="pageSubtitle">Build habits. One day at a time.</p>
+                </div>
+                <div class="actions">
+                    <button id="themeToggle" class="icon-btn">🌙</button>
+                    <!-- Add Habit Button (Only visible on Dashboard) -->
+                    <button id="addHabitBtn" class="btn-primary">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        New Habit
+                    </button>
+                    <!-- Add Goal Button (Only visible on Goals) -->
+                    <button id="addGoalBtn" class="btn-primary hidden">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        New Goal
+                    </button>
+                </div>
+            </header>
+
+            <!-- VIEW: DASHBOARD -->
+            <div id="view-dashboard" class="view-section active">
+                <section class="stats-overview">
+                    <div class="stat-card">
+                        <div class="stat-icon purple">📝</div>
+                        <div class="stat-info"><span class="label">Total Habits</span>
+                            <h3 id="totalHabits">0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon blue">⚡</div>
+                        <div class="stat-info"><span class="label">Completion Rate</span>
+                            <h3 id="completionRate">0%</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon fire">🔥</div>
+                        <div class="stat-info"><span class="label">Longest Streak</span>
+                            <h3 id="bestStreak">0 days</h3>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="habits-container">
+                    <div class="section-header">
+                        <h2>Your Focus</h2>
+                        <span class="date-badge" id="currentDate">Today</span>
+                    </div>
+                    <div id="habitsList" class="habits-grid"></div>
+                    <div id="emptyState" class="empty-state">
+                        <div class="empty-illustration">🌱</div>
+                        <h3>Start your journey</h3>
+                        <p>Create your first habit to begin tracking your progress.</p>
+                        <button class="btn-secondary" onclick="document.getElementById('addHabitBtn').click()">Create
+                            First Habit</button>
+                    </div>
+                </section>
+            </div>
+
+            <!-- VIEW: GOALS -->
+            <div id="view-goals" class="view-section">
+                <div class="goals-grid" id="goalsList">
+                    <!-- Goals injected here -->
+                </div>
+                <div id="goalsEmptyState" class="empty-state">
+                    <div class="empty-illustration">�</div>
+                    <h3>Set Monthly Targets</h3>
+                    <p>Track larger goals alongside your daily habits.</p>
+                </div>
+            </div>
+
+            <!-- VIEW: CALENDAR -->
+            <div id="view-calendar" class="view-section">
+                <div class="calendar-wrapper">
+                    <div class="calendar-header">
+                        <h2 id="calendarMonth">January 2026</h2>
+                        <div class="legend">
+                            <span class="dot-legend perfect"></span> Perfect
+                            <span class="dot-legend good"></span> Good
+                            <span class="dot-legend none"></span> None
+                        </div>
+                    </div>
+                    <!-- Weekday Headers -->
+                    <div class="calendar-weekdays">
+                        <div>Sun</div>
+                        <div>Mon</div>
+                        <div>Tue</div>
+                        <div>Wed</div>
+                        <div>Thu</div>
+                        <div>Fri</div>
+                        <div>Sat</div>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid">
+                        <!-- Calendar days injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: ANALYTICS -->
+            <div id="view-analytics" class="view-section">
+                <!-- Analytics Summary Cards -->
+                <div class="analytics-summary">
+                    <div class="metric-card">
+                        <div class="metric-icon purple">📊</div>
+                        <div class="metric-text">
+                            <span class="label">Consistency Score</span>
+                            <h3 id="consistencyScore">--</h3>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon blue">✅</div>
+                        <div class="metric-text">
+                            <span class="label">Total Completions</span>
+                            <h3 id="totalCompletions">0</h3>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon orange">🏆</div>
+                        <div class="metric-text">
+                            <span class="label">Best Day</span>
+                            <h3 id="bestDay">--</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Grid -->
+                <div class="charts-grid-premium">
+                    <div class="chart-card large">
+                        <div class="chart-header">
+                            <h3>Completion Trend</h3>
+                            <div class="chart-actions">
+                                <span class="badge-soft">Last 7 Days</span>
+                            </div>
+                        </div>
+                        <div class="chart-wrapper-large">
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card small">
+                        <h3>Distribution</h3>
+                        <div class="chart-wrapper-small">
+                            <canvas id="distributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div><!-- End App View -->
+
+    </div><!-- End App View -->
+
+    <!-- Habit Modal -->
+    <div id="modalOverlay" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Create New Habit</h3>
+                <button class="close-btn closeModal">&times;</button>
+            </div>
+            <form id="habitForm">
+                <div class="form-group">
+                    <label>Habit Name</label>
+                    <input type="text" id="habitNameInput" placeholder="e.g. Read 30 mins" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>Icon</label>
+                    <div class="icon-selector" id="iconSelector">
+                        <button type="button" class="icon-option active" data-icon="📚">📚</button>
+                        <button type="button" class="icon-option" data-icon="🏃">🏃</button>
+                        <button type="button" class="icon-option" data-icon="💧">💧</button>
+                        <button type="button" class="icon-option" data-icon="🧘">🧘</button>
+                        <button type="button" class="icon-option" data-icon="💻">💻</button>
+                        <button type="button" class="icon-option" data-icon="🎨">🎨</button>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-text closeModal">Cancel</button>
+                    <button type="submit" class="btn-primary">Create Habit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Goal Modal -->
+    <div id="goalModalOverlay" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Set New Goal</h3>
+                <button class="close-btn closeGoalModal">&times;</button>
+            </div>
+            <form id="goalForm">
+                <div class="form-group">
+                    <label>Goal Title</label>
+                    <input type="text" id="goalTitleInput" placeholder="e.g. Read 4 Books" required>
+                </div>
+                <div class="form-group">
+                    <label>Target Number</label>
+                    <input type="number" id="goalTargetInput" placeholder="4" required min="1">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-text closeGoalModal">Cancel</button>
+                    <button type="submit" class="btn-primary">Set Goal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModalOverlay" class="modal-overlay">
+        <div class="modal auth-card" style="max-width: 360px; padding: 32px; text-align: center;">
+            <div class="modal-header" style="justify-content: center; margin-bottom: 16px;">
+                <div class="logo-icon"
+                    style="width: 56px; height: 56px; font-size: 28px; background: rgba(239, 68, 68, 0.1); color: #ef4444; display:grid; place-items:center;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                </div>
+            </div>
+            <h2 style="font-size: 22px; margin-bottom: 12px;">Log Out?</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 28px; font-size: 15px;">
+                Are you sure you want to sign out? Your progress is saved safely.
+            </p>
+            <div class="modal-actions" style="justify-content: center; gap: 16px;">
+                <button id="cancelLogout" class="btn-secondary" style="flex: 1; padding:12px;">Cancel</button>
+                <button id="confirmLogout" class="btn-primary"
+                    style="flex: 1; background: #ef4444; border: none; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); padding:12px;">
+                    Log Out
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
