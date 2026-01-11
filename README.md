@@ -27,7 +27,7 @@ Since HabitFlow is a static web application, you don't need to install anything!
 
 **OR**
 
-[Click here to view the Live Demo](#) *(Add your Netlify/Vercel link here later)*
+ https://habbittrackerrr.netlify.app/
 
 ## 🛠️ Technologies Used
 
