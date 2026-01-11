@@ -568,7 +568,11 @@ function renderAnalytics() {
 function setupModals() {
     els.buttons.addHabit.addEventListener('click', () => els.modals.habit.classList.add('active'));
     els.buttons.addGoal.addEventListener('click', () => els.modals.goal.classList.add('active'));
+
+    // Fix: Listen for BOTH modal close classes
     document.querySelectorAll('.closeModal').forEach(b => b.addEventListener('click', closeModals));
+    document.querySelectorAll('.closeGoalModal').forEach(b => b.addEventListener('click', closeModals));
+
     els.buttons.theme.addEventListener('click', toggleTheme);
     document.getElementById('iconSelector').addEventListener('click', e => {
         if (e.target.classList.contains('icon-option')) {
@@ -582,6 +586,10 @@ function closeModals() {
     els.modals.habit.classList.remove('active');
     els.modals.goal.classList.remove('active');
     if (els.modals.logout) els.modals.logout.classList.remove('active');
+
+    // Optional: Reset forms on close
+    document.getElementById('habitForm').reset();
+    document.getElementById('goalForm').reset();
 }
 
 function toggleTheme() {
