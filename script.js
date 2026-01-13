@@ -6,42 +6,49 @@ let appState = {
     history: {}
 };
 
-const els = {
-    auth: document.getElementById('auth-view'),
-    app: document.getElementById('app-view'),
-    loginForm: document.getElementById('loginForm'),
-    navItems: document.querySelectorAll('.nav-item'),
-    views: {
-        dashboard: document.getElementById('view-dashboard'),
-        goals: document.getElementById('view-goals'),
-        calendar: document.getElementById('view-calendar'),
-        analytics: document.getElementById('view-analytics')
-    },
-    lists: {
-        habits: document.getElementById('habitsList'),
-        goals: document.getElementById('goalsList')
-    },
-    stats: {
-        total: document.getElementById('totalHabits'), // Reuse ID for dashboard stats if needed
-        rate: document.getElementById('completionRate'),
-        streak: document.getElementById('currentStreak')
-    },
-    buttons: {
-        addHabit: document.getElementById('addHabitBtn'),
-        addGoal: document.getElementById('addGoalBtn'),
-        theme: document.getElementById('themeToggle')
-    },
-    modals: {
-        habit: document.getElementById('modalOverlay'),
-        goal: document.getElementById('goalModalOverlay'),
-        logout: document.getElementById('logoutModalOverlay')
-    },
-    titles: {
-        main: document.querySelector('.greeting h1')
-    }
-};
+let els = {};
+
+function populateEls() {
+    els = {
+        auth: document.getElementById('auth-view'),
+        app: document.getElementById('app-view'),
+        loginForm: document.getElementById('loginForm'),
+        navItems: document.querySelectorAll('.nav-item'),
+        views: {
+            dashboard: document.getElementById('view-dashboard'),
+            goals: document.getElementById('view-goals'),
+            calendar: document.getElementById('view-calendar'),
+            analytics: document.getElementById('view-analytics')
+        },
+        lists: {
+            habits: document.getElementById('habitsList'),
+            goals: document.getElementById('goalsList')
+        },
+        stats: {
+            total: document.getElementById('totalHabits'),
+            rate: document.getElementById('completionRate'),
+            streak: document.getElementById('bestStreak')
+        },
+        buttons: {
+            addHabit: document.getElementById('addHabitBtn'),
+            addGoal: document.getElementById('addGoalBtn'),
+            theme: document.getElementById('themeToggle')
+        },
+        modals: {
+            habit: document.getElementById('modalOverlay'),
+            goal: document.getElementById('goalModalOverlay'),
+            logout: document.getElementById('logoutModalOverlay')
+        },
+        titles: {
+            main: document.querySelector('.greeting h1')
+        }
+    };
+}
 
 function init() {
+    // 0. Populate Elements
+    populateEls();
+
     // 1. Check Auth & Load Data
     checkAuth();
 
